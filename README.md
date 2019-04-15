@@ -1,2 +1,2 @@
-# master_thesis
-Master Thesis on reproducibility and interpretability of neural ranking models
+# Master Thesis
+Master thesis on reproducibility and interpretability of neural ranking models

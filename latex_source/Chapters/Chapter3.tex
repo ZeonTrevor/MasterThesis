@@ -1,0 +1,123 @@
+\chapter{Background} % Main chapter title
+
+\label{Chapter3} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
+
+\lhead{Chapter 3. \emph{Background}} % Change X to a consecutive number; this is for the header on each page - perhaps a shortened title
+
+%-----------------------------------------------------
+%	SECTION 1
+%-----------------------------------------------------
+
+In this chapter, we describe the building blocks that are commonly used to design neural network architectures for IR on which we carry out various reproducibility experiments as detailed in chapter~\ref{Chapter4}. We first describe the common input text representations that are commonly used by the existing neural IR models in section~\ref{sec:nn_input_text_repr}. Then, in section~\ref{sec:popular_architectures_for_ir} we describe a few standard neural network architectures that are commonly used in IR using the categories described in~\cite{mitra18_nir_intro}. Then we cover the different learning objectives and training strategies employed to effectively train these neural ranking models in section~\ref{sec:nn_model_learning}.
+
+In the last section, we detail the two interpretability approaches--LIME (section~\ref{sec:lime_approach}) and DeepSHAP (section~\ref{sec:deepshap_approach}) that is used in this thesis to help understand the ranking decisions made by various neural IR models. 
+
+\section{Input Text Representations}
+\label{sec:nn_input_text_repr}
+
+Neural IR models that learn representations of text, take raw text as input. Commonly used input text representations for neural network models in IR are pre-trained embeddings~\citep{Guo2016, matchpyramid16} or one-hot representations of terms or character n-graphs~\citep{dssm13, Mitra2017a}. Few models also take dense representations of longer chunks of text by aggregating the term pre-trained embeddings either by concatenating or taking a weighted sum over all the terms~\citep{Dehghani_sigir17}. These pre-trained embeddings can also be fine-tuned while training the neural models by directly optimizing it for the IR task of matching query-document pair~\citep{KNRM17}. Learning the term embeddings end-to-end with model training helps learn soft matching patterns that can help separate relevant from irrelevant documents but this requires large amount of training data, such as, click-through data from commercial search engines or weak supervision~\citep{Dehghani_sigir17} to learn effective representations. The pre-trained embeddings are generally learnt in an unsupervised manner either using an external large corpus or the target corpus itself using neural term embeddings models, such as,  \texttt{word2vec} (CBOW or skip-gram)~\citep{Mikolov2013} or \texttt{glove}~\citep{pennington2014glove}.
+
+\textbf{word2vec} It consists of two architectures--\textsf{skip-gram} architecture that consists of one hidden layer with both input and output as one-hot term vectors and the model is trained by minimizing the error in predicting a term given one of its neighbouring terms defined by a context window; and \textsf{Continuous Bag-Of-Words} (CBOW) which is similar to skip-gram but the task it to minimize the error in predicting the middle term given a bag-of-words representation of all its neighbouring terms in a window. 
+
+\textbf{Glove} It combines global and local context in the learning of embeddings by using a training objective that tries to minimize the squared difference between the dot product of the word vectors of term-neighbour pairs and the logarithm of the word's probability of co-occurrence in the corpus.
+
+\section{Popular Architectures for IR}
+\label{sec:popular_architectures_for_ir}
+
+\subsection{Shift invariant neural operations}
+Shift invariant comprises of \textit{convolutional} and \textit{recurrent} architectures. The key intuition behind these architectures, is that, the meaning of an English sentence in most cases should be consistent irrespective of the location in the document where it appears.
+
+In shift neural operations fundamentally employ a window-based approach over the input space. A fixed size window is moved over the input space with fixed stride in each step. A typically parameterised function - called a \textit{kernel}, or \textit{filter}, or \textit{cell} is applied over each instance of this window. The parameters of the cell are shared across all window instances, which implies lesser number of total parameters in the model and more supervision per parameter per training sample.
+
+A popular cell implementation includes multiplying with a weight matrix - then the architecture is referred to as convolutional. An example of cell without parameters is \textit{pooling} - which consists of aggregating (sum or max) over all term vectors in the window. The length of the input sequence can be variable in both cases and the length of the output of convolutional or pooling layer is a function of input length. In the \textit{global pooling strategy} there is a single window which spans over the whole input--applied on top of the convolutional layer thus giving a fixed sized output for variable length input.
+
+In convolutional or pooling each window is applied independently. While, in \textit{recurrent} architecture the cell not only considers the current input window but also the output of the previous instance of the cell as its input. Popular RNN archictectures are--Elmon network, Long Short-Term Memory (LSTM) and Gated Recurrent Unit (GRU).
+
+One thing to consider is how the window outputs are aggregated when using convolutional or recurrent layers. Convolutional layers are followed by either pooling or fully-connected layers that perform a global aggregation over all window instances. Fully-connected layer is aware of window position, while as pooling is agnostic to it. A global max-pooling operation could be applied to a variable size input, but it is not suitable for long sequences. Most existing \textit{interaction-based} neural IR approaches in general include convolutional architectures (DUET~\citep{Mitra2017a}, MatchPyramid, MACM~\citep{Nie_sigir_2018}, Co-PACRR, Conv-KNRM), whereas a few approaches include a convolutional architecture followed by recurrent architecture that aggregates the various local signals (PACRR, DeepRank, HiNT~\citep{Fan_hint_2018}, DeepTileBars~\citep{deeptilebars_2019}).
+
+\subsection{Auto-encoders}
+The purpose of auto-encoders is to learn a compressed representation $\vec{x}\in\mathbb{R}^{k}$ from their high-dimension representation $\vec{v}\in\mathbb{R}^{K}$ where $k \ll K$. The model is trained by feeding in the high-dimensional input and reconstructing the same representation in the output layer. The model is trained by minimizing the error between the input $\vec{v}$ and the output of the decoder $\vec{v'}$. Squared loss is employed popularly.
+\begin{equation}
+	\mathcal{L}_{auto-encoder}(\vec{v},\vec{v'}) = \
+    {\| \vec{v} - \vec{v'} \|}^2
+\end{equation}
+
+One of the earliest neural models was a deep auto-encoder trained in an unsupervised setting on an unlabeled document corpus~\citep{SALAKHUTDINOV2009}. The documents are represented as a bag of terms and uses a one-hot representation for the terms themselves--considering only the top two thousand words in the vocabulary after removing stop words. The model is pre-trained layer-by-layer and then further trained for end-to-end learning. This model generates a condensed binary vector representation of documents. Given a search query, a corresponding hash is computed and then candidate relevant documents are retrieved that match this hash vector. A standard IR model can then re-rank this candidate set of documents. One of the main drawbacks of auto-encoders is that the model is trained on document reconstruction loss which would not model the relevance signals required to match query and documents.
+
+\subsection{Siamese networks}
+These models are used for comparing short texts. It is similar to the auto-encoders architecture but it is trained on pairs of inputs. It consists of two models that project the inputs into a common embedding space (dense representation) and predefined metric (cosine, dot) is used to commute the similarity between the embedded vectors. Most of the earlier \textit{representation-based} models employ this type of network (DSSM~\citep{dssm13}, C-DSSM~\citep{Shen2014a}).
+
+\subsection{Interaction based networks}
+In Siamese networks, both the query and documents are represented using single embedded vectors. We can instead compare individual parts of the query with individual parts of the document, to aggregate a partial evidence of relevance. This is useful, when dealing with long documents--as they contain a mixture of topics, such a strategy is more effective than representing it using a low dimensional vector. In these approaches, a sliding window is moved over the query and the document text, and each instance of the window of the query is compared with each instance of the document text window. The terms within each window can be represented in different ways, like, one-hot vectors, pre-trained embeddings or embeddings that are updated during model training. A neural model like convolutional operates over the interaction matrix and aggregates evidence across all pairs of windows compared. These interaction based approaches have been explored for ranking long documents (DUET, MatchPyramid~\citep{matchpyramid16}, PACRR, Co-PACRR~\citep{pacrr17, co_pacrr_wsdm18}).
+
+\subsection{Lexical and semantic matching networks}
+Most of the previous networks focuses on learning good representations of the text. However, these representation-based models perform poorly on rare terms and search intents. Thus, approaches that also model lexical matches using deep neural networks perform better (DRMM~\citep{Guo2016}, DUET, K-NRM~\citep{KNRM17}). Neural models that focuses on lexical matching tend to have fewer parameters and can be learned effectively with smaller datasets. In recent neural IR approaches, the input representation consists of 3-dimensional tensors that includes different types of interaction matrices capturing different signals--exact or semantic (HiNT~\citep{Fan_hint_2018}, DeepTileBars), interactions between context-sensitive or context-insensitive embeddings (POSIT-DRMM~\citep{pacrr_drmm_18}), etc.
+
+\section{Neural Model Learning}
+\label{sec:nn_model_learning}
+In this section, we describe the common learning objectives and training strategies that are employed by existing neural ranking approaches.
+
+\subsection{Learning objectives}
+Similar to learning-to-rank (LTR) approaches, the learning objectives for neural IR models can be broadly categorized into--\textit{pointwise} and \textit{pairwise} ranking loss objectives.
+
+\textbf{Pointwise Obj.} In the pointwise approach, given a query $q$ and $d \in D$ belonging to the ideal ranking set from the training dataset, a neural model is directly trained to estimate the relevance label $rel_q(d)$ which is generally a numerical value. The \textit{regression} squared loss defined in eq.~\ref{eq:reg_square_loss}~\citep{Dehghani_sigir17} and \textit{cross-entropy} loss defined in eq.~\ref{eq:cross_entropy_loss}~\citep{dssm13, Mitra2017a, co_pacrr_wsdm18} are the common ranking objectives used to train existing approaches.
+\begin{equation}\label{eq:reg_square_loss}
+    \mathcal{L}_{squared} = ||rel_q(d) - s(q,d)||^2\\
+\end{equation}
+where $s(q, d)$ is the score predicted by the model.
+\begin{equation}\label{eq:cross_entropy_loss}
+    \mathcal{L}_{cross-entropy} = -log\Big(\frac{\exp (f(Q,D^+))}{\sum_{D \in N} \exp (f(Q,D))}\Big)
+\end{equation}
+where $D^+$ is the relevant document and $N = \{D^+\} \cup D^-$ and $D^-$ is a fixed number of randomly sampled irrelevant documents (either manually judged or picked from the rest of the collection minus the candidate documents retrieved using a first stage ranker).
+
+\textbf{Pairwise Obj.} In this approach, given a query $q$, and documents ($d^+, d^-$) where $d^+$ is ranked higher than $d^-$ with respect to the query, the neural ranking model is directly trained to learn the preference pairs or ranking between pairs of documents with respect to individual queries. The \textit{max-margin} pairwise ranking loss is the most common ranking objective (eq.~\ref{eq:max_margin_loss}) employed by numerous neural IR models~\citep{Guo2016, KNRM17, matchpyramid16}.
+\begin{equation}\label{eq:max_margin_loss}
+    \mathcal{L}_{max-margin} = max(0, 1 - (s(q, d^+) - s(q,d^-))
+\end{equation}
+where s(q, d) is the score returned by the neural ranking model.
+
+\subsection{Training strategies}
+\textit{Supervised learning} is the most common strategy employed by the existing approaches where query-document pair labels are available. The labels are available either through relevance judgements from popular TREC ad-hoc tasks or through implicit feedback from user interactions with commercial search engines (click-through) data. 
+
+\textit{Weakly supervised learning} As neural models require large amounts of data, and since annotated data is limited, in this learning strategy query-document labels are generated using an existing traditional IR model (BM25, QL) that gives pseudo labels. Most recently,~\cite{Dehghani_sigir17} proposed to train a neural ranking model with weak supervision and show that it provides upto 35\% improvement over the BM25 baseline that is used as the weak ranker or annotator.
+
+\textit{Semi-supervised learning} In this approach, a small set of high quality manually judged query-document pairs are used along with large sets of unlabeled or pseudo-labeled data. For neural models, fine-tuning weak supervision trained models using a small set of labeled data is shown in~\citep{dehghani2018fidelityweighted}. Recently, \cite{Bo_coling18} proposed a neural model with a joint supervised and unsupervised loss objectives. The learned representation is optimized for the context of IR by minimizing a supervised loss that accounts for errors in query-document relevance matching, and a unsupervised loss that computes the document reconstruction loss (e.g. auto-encoders). They show that neural IR models jointly learnt from labeled and unlabeled data benefit from both the generic semantics in unlabeled data and target-specific features in labeled data.
+
+\section{Interpretability Approaches}
+In this section, we describe in detail two interpretability approaches--one that is \textit{model-agnostic} (LIME) and the other a \textit{model-introspective} (DeepSHAP) that we use in this thesis to understand the decisions made by various neural IR models (such as, exactly \textit{why} a particular document is relevant to a given query for this model). The approach of how these interpretability methods are modified or applied to the context of IR is described in Chapter~\ref{Chapter5}.
+
+\subsection{Local Interpretable Model-Agnostic Explanations}\label{sec:lime_approach}
+
+Local interpretable model-agnostic models (LIME)~\citep{Ribeiro16, Ribeiro18} are used to explain individual predictions by approximating the local behavior of complex black-box models. The important characteristics underlying LIME is that the explanation model needs to be (1) \textit{interpretable}, (2) \textit{locally faithful} and (3) \textit{model-agnostic} which~\cite{Ribeiro16} respectively define as (1) ``provide qualitative understanding between the input variables and the response'', (2) the explanation ``must correspond to how the model behaves in the vicinity of the instance being predicted'' and (3) ``the explanation should
+be able to explain any model''. The explanations are created using ``interpretable'' models (e.g. sparse linear models) trained on interpretable feature representations. The training data is sampled from perturbing the instance to be explained weighted by its proximity to that instance and the corresponding predictions obtained from the black box model.
+
+Approaches in this space tend to differ based on the type of black-box model (classification, regression), the interpretable feature space and the definition of locality. For example, the interpretable feature space for text based models is the space of all words in that instance represented using one-hot vectors even if the black-box model uses word embeddings. The explanation then is a visualization of the simple model depending on the context and the model itself.
+
+LIME is an approach designed specifically to explain the output of a classifier. To illustrate their approach, consider a trained binary classifier $\mathcal{B}$ and an instance document to classify $d$. Assume that $\mathcal{B}$(d) is a probability distribution across the classes. The objective of LIME is to train a simple model $\mathcal{M}_d$ that minimizes $\mathcal{L}$($\mathcal{B}$, $\mathcal{M}_d$, $\pi_d$) which is a measure of how far $\mathcal{M}_d$ is in approximating $\mathcal{B}$ in the locality defined by $\pi_d$ which is a proximity measure between the perturbed instance and the instance to be explained. The explanation $\xi(x)$ produced by LIME can be obtained using the following equation.
+\begin{equation}
+    \xi(x) = \underset{g\in G}{\arg\min}\  \mathcal{L}(\mathcal{B}, \mathcal{M}_d, \pi_d) + \Omega(g)
+\end{equation}
+G is the family of explanation models (e.g. all possible linear regression models). $\Omega(g)$ is the complexity measure of the explanation model $g$. For example, for linear models, $\Omega(g)$ could be the number of non-zero weights. The loss $\mathcal{L}$ to be reduced is the dissonance between the simple $\mathcal{M}_d$'s predictions and the labels produced by $\mathcal{B}$ for all $d'\in \pi_d$ . 
+
+For the case of explaining text based models, $\mathcal{M}_d$ is a sparse linear regression model (\textit{ridge regression}\footnote{\url{https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html}}) trained on a bag of words feature space. $d' \in \pi_d$ is generated by perturbing document $d$. In LIME, $d'$ is created by removing random words from random positions in d. The locally weighted squared loss $\mathcal{L}$ of the sparse linear model is as defined in eq.~\ref{ridge_loss}, where $\pi_d$ is an exponential kernel on some distance function \textit{dist} (e.g. cosine distance for text) given in eq.~\ref{exp_kernel}.
+\begin{equation}\label{ridge_loss}
+    \mathcal{L}(\mathcal{B}, \mathcal{M}_d, \pi_d) = \underset{d, d' \in D}{\sum} \pi_d(d')(\mathcal{B}(d) - \mathcal{M}_d(d'))^2
+\end{equation}
+\begin{equation}\label{exp_kernel}
+    \pi_d(d') = exp(\frac{-dist(d, d')}{\sigma^2})
+\end{equation}
+The coefficients of the features of the trained $\mathcal{M}_d$ indicates the importance of the words for that instance. Features with highest positive coefficients are assumed to be important for the model to classify the instance to the predicted class, where as those with highest negative coefficients are assumed to work for the different class. Limiting the number of words returned for the explanation is chosen based on feature-selection strategies, such as, LASSO (using the regularization parameter $\lambda$), or forward and backward selection of features.
+%Obtaining a label (probability distribution across classes here) for a perturbed instance is straightforward for a classifier whereas for ranking models this is tricky.
+
+\subsection{DeepSHAP}\label{sec:deepshap_approach}
+DeepSHAP~\citep{Lundberg17} is one of the popular \textit{model-introspective} approaches that enables us to understand the predictions of complex deep-learning models. It produces explanations by using the input feature attributions for a given instance and the prediction of the model for that instance. DeepSHAP is a modification of the DeepLift~\citep{ShrikumarGK17} algorithm to efficiently estimate the shapley values over the input feature space for a given instance. The shapley value is a term coined by Shapley~\citep{shapley1953value} in cooperative game theory to refer to the contribution of a feature in a prediction. More specifically, shapley values explain the contribution of an input feature towards the \emph{difference} in the prediction made vs the average prediction value.
+
+DeepLIFT explains the difference in output or prediction from some `reference' output with respect to the difference of the input (to explain) from a `reference' input. DeepLIFT uses a `\textbf{summation-to-delta}' property that states that:
+\begin{equation}\label{eq:sum_to_delta}
+    \overset{n}{\underset{i=1}{\sum}}C_{\Delta x_i \Delta t} = \Delta t
+\end{equation}
+where $t=f(x)$ is model output, $\Delta t=f(x) - f(r)$, $\Delta x_i= x_i - r_i$ and $r$ is the reference input. It can be described as the amount difference-from-reference of the output that is attributed to the amount of difference-from-reference of the input. The authors define a function (eq.~\ref{eq:deeplift_multiplier}) analogous to partial derivatives to compute the feature importance scores and use the chain rule to backpropagate the activation differences from the output layer to the original input.
+\begin{equation}\label{eq:deeplift_multiplier}
+    m_{\Delta x \Delta t} = \frac{C_{\Delta x \Delta t}}{\Delta x}
+\end{equation}
+The choice of reference input depends on domain specific knowledge; For example, in digit classification task on the MNIST dataset, they use a reference input of all-zeros as that is the background of the images. For object detection in images, a plain black image is often used.

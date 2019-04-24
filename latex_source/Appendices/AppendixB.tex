@@ -1,0 +1,86 @@
+% Appendix Template
+
+\chapter{LIME vs SHAP experiments (precision-recall)} % Main appendix title
+
+\label{AppendixB} % Change X to a consecutive letter; for referencing this appendix elsewhere, use \ref{AppendixX}
+
+\lhead{Appendix B. \emph{Additional Quantitative Experiments}} % Change X to a consecutive letter; this is for the header on each page - perhaps a shortened title
+
+\vspace{-2em}
+In this appendix, we compare on an average at what rank (based on shapley value magnitude) across the various DeepSHAP variants are the LIME `ground truth' explanation terms at different recall percentages found. 
+\begin{table}
+\scalebox{0.65}{
+\begin{tabular}{lccccccccccccccc} 
+\toprule
+ &\multicolumn{5}{c}{DRMM}&\multicolumn{5}{c}{MatchPyramid}&\multicolumn{5}{c}{PACRR-DRMM}\\
+ \cmidrule(r){2-6}
+ \cmidrule(r){7-11}
+ \cmidrule(r){12-16}
+
+ Recall \% & OOV & IDF & QL & COL. & TOPK  & OOV & IDF  & QL & COL.  & TOPK & OOV  & IDF & QL  & COL. & TOPK \\
+ \midrule
+ %\hline\hline
+
+0.1 & 0.975 & 0.997 & 1.000 & 0.981 & 0.972 & 0.987 & 0.992 & 0.981 & 0.985 & 0.969 & 0.979 & 0.982 & 0.978 & 0.977 & 0.912\\
+
+0.2 & 0.931 & 0.965 & 0.979 & 0.889 & 0.730 & 0.918 & 0.917 & 0.917 & 0.914 & 0.810 & 0.939 & 0.913 & 0.908 & 0.921 & 0.774\\
+
+0.3 & 0.835 & 0.901 & 0.939 & 0.823 & 0.540 & 0.839 & 0.838 & 0.803 & 0.807 & 0.679 & 0.809 & 0.720 & 0.731 & 0.755 & 0.637\\
+
+0.4 & 0.710 & 0.813 & 0.881 & 0.695 & 0.367 & 0.673 & 0.689 & 0.630 & 0.645 & 0.554 & 0.679 & 0.536 & 0.531 & 0.613 & 0.553\\
+
+0.5 & 0.635 & 0.729 & 0.800 & 0.586 & 0.292 & 0.554 & 0.581 & 0.522 & 0.534 & 0.488 & 0.603 & 0.446 & 0.443 & 0.517 & 0.508\\
+
+0.6 & 0.547 & 0.648 & 0.712 & 0.507 & 0.237 & 0.456 & 0.488 & 0.429 & 0.451 & 0.401 & 0.576 & 0.414 & 0.391 & 0.477 & 0.479\\
+
+0.7 & 0.449 & 0.543 & 0.603 & 0.413 & 0.192 & 0.377 & 0.411 & 0.362 & 0.367 & 0.319 & 0.580 & 0.389 & 0.385 & 0.436 & 0.467\\
+
+0.8 & 0.346 & 0.457 & 0.496 & 0.333 & 0.157 & 0.317 & 0.341 & 0.291 & 0.309 & 0.272 & 0.595 & 0.381 & 0.375 & 0.371 & 0.417\\
+
+0.9 & 0.261 & 0.334 & 0.380 & 0.242 & 0.137 & 0.274 & 0.305 & 0.257 & 0.283 & 0.244 & 0.583 & 0.426 & 0.394 & 0.425 & 0.405\\
+
+1.0 & 0.189 & 0.214 & 0.246 & 0.172 & 0.128 & 0.216 & 0.226 & 0.199 & 0.248 & 0.210 & 0.000 & 0.411 & 0.442 & 0.476 & 0.000\\
+
+\bottomrule
+ \end{tabular}}
+\caption[Comparison of precision-recall of terms from DeepSHAP methods with ground-truth terms from LIME.]{Comparison of mean precision of DeepSHAP variants at various recall percentages of the \textit{top-10} ground-truth terms from LIME for ROBUST04 hard queries (50)}
+\label{tab:prec_recall_top_10_LIME_GT}
+\end{table}
+
+\begin{table}
+\scalebox{0.65}{
+\begin{tabular}{lccccccccccccccc} 
+\toprule
+ &\multicolumn{5}{c}{DRMM}&\multicolumn{5}{c}{MatchPyramid}&\multicolumn{5}{c}{PACRR-DRMM}\\
+ \cmidrule(r){2-6}
+ \cmidrule(r){7-11}
+ \cmidrule(r){12-16}
+
+ Recall \% & OOV & IDF & QL & COL. & TOPK  & OOV & IDF  & QL & COL.  & TOPK & OOV  & IDF & QL  & COL. & TOPK \\
+ \midrule
+
+0.1 & 0.913 & 0.955 & 1.000 & 1.000 & 1.000 & 0.964 & 0.952 & 0.929 & 0.946 & 0.899 & 0.767 & 0.700 & 0.667 & 0.700 & 0.840\\
+
+0.2 & 0.824 & 0.692 & 0.918 & 0.694 & 0.590 & 0.732 & 0.829 & 0.749 & 0.742 & 0.734 & 0.783 & 0.683 & 0.567 & 0.767 & 0.700\\
+
+0.3 & 0.841 & 0.642 & 0.789 & 0.589 & 0.391 & 0.665 & 0.794 & 0.683 & 0.601 & 0.491 & 0.857 & 0.616 & 0.467 & 0.725 & 0.570\\
+
+0.4 & 0.628 & 0.646 & 0.795 & 0.501 & 0.238 & 0.536 & 0.655 & 0.608 & 0.525 & 0.420 & 0.750 & 0.553 & 0.482 & 0.718 & 0.536\\
+
+0.5 & 0.495 & 0.570 & 0.650 & 0.451 & 0.248 & 0.381 & 0.417 & 0.381 & 0.378 & 0.330 & 0.463 & 0.321 & 0.282 & 0.361 & 0.372\\
+
+0.6 & 0.568 & 0.489 & 0.594 & 0.340 & 0.129 & 0.413 & 0.440 & 0.454 & 0.351 & 0.293 & 0.929 & 0.600 & 0.633 & 0.625 & 0.508\\
+
+0.7 & 0.375 & 0.436 & 0.473 & 0.302 & 0.116 & 0.351 & 0.380 & 0.360 & 0.306 & 0.267 & 0.818 & 0.525 & 0.510 & 0.561 & 0.500\\
+
+0.8 & 0.332 & 0.341 & 0.394 & 0.299 & 0.120 & 0.300 & 0.321 & 0.312 & 0.323 & 0.219 & 0.786 & 0.461 & 0.508 & 0.472 & 0.401\\
+
+0.9 & 0.254 & 0.303 & 0.326 & 0.275 & 0.115 & 0.307 & 0.365 & 0.347 & 0.293 & 0.189 & 0.900 & 0.500 & 0.643 & 0.500 & 0.000\\
+
+1.0 & 0.173 & 0.190 & 0.217 & 0.150 & 0.111 & 0.187 & 0.193 & 0.174 & 0.214 & 0.178 & 0.000 & 0.345 & 0.373 & 0.389 & 0.000\\
+
+\bottomrule
+ \end{tabular}}
+\caption[Comparison of precision-recall of terms from DeepSHAP methods with ground-truth terms from LIME \textit{not including query terms}.]{Comparison of mean precision of DeepSHAP at various recall percentages of the \textit{top-10} ground-truth terms from LIME for ROBUST04 difficult queries (50); {\bf From both sets of terms we ignore the query terms}}
+\label{tab:prec_recall_top_10_LIME_GT_wo_query_terms}
+\end{table}

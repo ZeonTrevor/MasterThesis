@@ -1,0 +1,62 @@
+% Appendix Template
+
+\chapter{Public Implementations of Neural IR models} % Main appendix title
+
+\label{AppendixC} % Change X to a consecutive letter; for referencing this appendix elsewhere, use \ref{AppendixX}
+
+\lhead{Appendix C. \emph{Neural IR repositories}} % Change X to a consecutive letter; this is for the header on each page - perhaps a shortened title
+
+We include the link to all the publicly available implementations of existing neural IR models in the table below. 
+
+\begin{table}[h]
+    \centering
+    \small
+    \begin{minipage}{\textwidth}
+    \renewcommand\footnoterule{}
+    \begin{tabular}{L{10em}L{30em}}
+        \toprule
+        Paper & Implementation Link\\
+        \midrule
+        HiNT & \url{https://github.com/faneshion/HiNT} \\
+        \addlinespace[0.3em]
+        
+        DeepRank & \url{https://github.com/pl8787/textnet-release}\\
+        \addlinespace[0.3em]
+        
+        DRMM & \url{https://github.com/faneshion/DRMM}, MatchZoo\footnote{\label{matchzoo_url}\url{https://github.com/NTMC-Community/MatchZoo}}\\
+        \addlinespace[0.3em]
+        
+        NPRF & \url{https://github.com/ucasir/NPRF}\\
+        \addlinespace[0.3em]
+        
+        PACRR-DRMM & \url{https://github.com/nlpaueb/deep-relevance-ranking}\\
+        \addlinespace[0.3em]
+        
+        MatchPyramid & MatchZoo\textsuperscript{\ref{matchzoo_url}}\\
+        \addlinespace[0.3em]
+        
+        DeepTileBars & \url{https://github.com/smt-HS/DeepTileBars-release}\\
+        \addlinespace[0.3em]
+        
+        SNRM \newline \cite{Zamani_neural_reranking_2018} & \url{https://github.com/hamed-zamani/snrm}\\
+        % \addlinespace[0.3em]
+        
+        PACRR \newline Co-PACRR & \url{https://github.com/khui/copacrr}\\
+        \addlinespace[0.3em]
+        
+        KNRM & \url{https://github.com/AdeDZY/K-NRM}, MatchZoo\textsuperscript{\ref{matchzoo_url}}\\
+        \addlinespace[0.3em]
+        
+        DUET & \url{https://github.com/bmitra-msft/NDRM}, MatchZoo\textsuperscript{\ref{matchzoo_url}}\\
+        \addlinespace[0.3em]
+        
+        DSSM & \url{https://github.com/NTMC-Community/MatchZoo}\\
+        \addlinespace[0.3em]
+        
+        C-DSSM & \url{https://github.com/airalcorn2/Deep-Semantic-Similarity-Model}, MatchZoo\textsuperscript{\ref{matchzoo_url}}\\
+        \bottomrule
+    \end{tabular}
+    \end{minipage}
+    \caption{Link to public repositories of neural IR models.}
+    \label{tab:neural_ir_repo}
+\end{table}

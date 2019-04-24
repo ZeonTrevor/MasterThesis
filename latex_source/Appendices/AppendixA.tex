@@ -1,0 +1,78 @@
+% Appendix A
+
+\chapter{LIME vs SHAP Examples} % Main appendix title
+
+\label{AppendixA} % For referencing this appendix elsewhere, use \ref{AppendixA}
+
+\lhead{Appendix A. \emph{lime vs shap qualitative examples}} % This is for the header on each page - perhaps a shortened title
+
+In this appendix, we include qualitative examples of the top-10 explanation terms selected by LIME and the various SHAP methods for the query `\textit{cult lifestyles}' and the document `\textit{FBIS3-843}' which talks about clashes between cult members and student union's activists at a university in Nigeria. Examples are included for all the 3 neural ranking models--DRMM (Tab. \ref{tab:drmm_qualitative_example_appendix}), MatchPyramid (Tab. \ref{tab:matchpyramid_qualitative_example_appendix}) and PACRR-DRMM (Tab. \ref{tab:pacrr_drmm_qualtitative_example_appendix}). In all the tables, words unique to a particular explanation method are highlighted in bold.
+
+This example query-document pair reflects how the different reference input methods encode its own distinct semantics and why DeepSHAP is highly sensitive to the reference input distribution. Thus, explanation terms can be quite different if we are not careful in selecting the reference input especially when comparing it with \textit{model-agnostic} approaches like LIME.
+
+\begin{table}
+    \centering
+    \begin{tabular}{cccccc}
+        \toprule
+        LIME & OOV & IDF & QL & COL. & TOPK\\
+        \midrule
+cult & cult & cult & cult & cult & cult \\
+style & followers & style & style & black & {\bf numbers} \\
+followers & black & followers & elite & fraternities & {\bf english} \\
+elite & fraternities & {\bf suspects} & saloon & degenerate & {\bf college} \\
+saloon & degenerate & {\bf belong} & {\bf final} & sons & {\bf university} \\
+{\bf student} & sons & {\bf reappearing} & march & followers & {\bf fallouts} \\
+home & {\bf academic} & household & {\bf friday} & style & {\bf buccaneers} \\
+{\bf members} & {\bf american} & black & september & home & {\bf feudings} \\
+march & {\bf tried} & fraternities & {\bf arms} & household & {\bf activists} \\
+september & household & degenerate & {\bf closed} & {\bf avoid} & {\bf troubles} \\
+        \bottomrule
+    \end{tabular}
+    \caption{Explanation words selected by LIME and DeepSHAP methods for \textsf{DRMM}}
+    \label{tab:drmm_qualitative_example_appendix}
+\end{table}
+
+\FloatBarrier
+\begin{table}[H]
+    \centering
+    \begin{tabular}{cccccc}
+        \toprule
+        LIME & OOV & IDF & QL & COL. & TOPK\\
+        \midrule
+cult & cult & cult & cult & cult & cult \\
+focus & activities & {\bf bloody} & activities & end & end \\
+style & focus & {\bf complain} & violent & call & call \\
+type & type & {\bf suspects} & article & action & style \\
+{\bf gang} & article & secret & type & style & {\bf injected} \\
+activities & bfn & members & {\bf recording} & bfn & action \\
+{\bf free} & {\bf taken} & campus & style & activities & {\bf tried} \\
+described & described & {\bf hired} & focus & {\bf today} & bfn \\
+violent & style & followers & campus & {\bf leader} & described \\
+members & end & activities & action & secret & followers \\
+        \bottomrule
+    \end{tabular}
+    \caption{Explanation words selected by LIME and DeepSHAP methods for \textsf{MatchPyramid}}
+    \label{tab:matchpyramid_qualitative_example_appendix}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{cccccc}
+        \toprule
+        LIME & OOV & IDF & QL & COL. & TOPK\\
+        \midrule
+cult & cult & cult & cult & cult & cult \\
+style & \textbf{language} & \textbf{60} & \textbf{peugeot} & \textbf{article} & to \\
+\textbf{cults} & their & \textbf{described} & to & english & their \\
+their & english & \textbf{student} & \textbf{as} & their & \textbf{expel} \\
+activities & activities & activities & activities & on & \textbf{with} \\
+the & style & \textbf{union} & the & \textbf{university} & members \\
+\textbf{fallouts} & suspects & their & their & activities & activities \\
+\textbf{themselves} & members & \textbf{nigeria} & \textbf{academic} & style & style \\
+\textbf{by} & the & suspects & \textbf{a} & \textbf{lagos} & the \\
+suspects & and & on & and & members & \textbf{naked} \\
+\bottomrule
+    \end{tabular}
+    \caption{Explanation words selected by LIME and DeepSHAP methods for \textsf{PACRR-DRMM}}
+    \label{tab:pacrr_drmm_qualtitative_example_appendix}
+\end{table}
